@@ -1,1 +1,25 @@
 // app/src/main/res/values/strings.xml - REPLACE WITH REAL CONTENT
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Orca</string>
+    <string name="app_tagline">Abyssal Neon</string>
+    
+    <!-- Accessibility -->
+    <string name="accessibility_service_description">Orca uses Accessibility Service to control your phone autonomously. It can tap, swipe, type, and navigate apps on your behalf.</string>
+    
+    <!-- Permissions -->
+    <string name="permission_accessibility_title">Accessibility Required</string>
+    <string name="permission_accessibility_message">Orca needs accessibility access to interact with your screen like a human. This is essential for autonomous task execution.</string>
+    <string name="permission_overlay_title">Overlay Required</string>
+    <string name="permission_overlay_message">Orca needs overlay permission to display its interface above other apps.</string>
+    
+    <!-- Notifications -->
+    <string name="notification_channel_name">Orca Agent</string>
+    <string name="notification_channel_description">Ongoing notification for Orca autonomous agent service</string>
+    <string name="notification_autopilot_active">AutoPilot is active. Orca is controlling your device.</string>
+    <string name="notification_task_executing">Executing task chain…</string>
+    
+    <!-- Security -->
+    <string name="biometric_prompt_title">Orca Security Checkpoint</string>
+    <string name="biometric_prompt_subtitle">Verify your identity to allow this action</string>
+</resources>
