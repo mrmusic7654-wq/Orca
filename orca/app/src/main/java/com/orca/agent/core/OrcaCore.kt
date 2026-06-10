@@ -1,12 +1,11 @@
-// app/src/main/java/com/orca/agent/core/OrcaCore.kt - REPLACE WITH REAL CONTENT
 package com.orca.agent.core
 
 import com.orca.agent.brain.ConsciousMind
 import com.orca.agent.brain.SubconsciousEngine
 import com.orca.agent.memory.MemoryCortex
-import com.orca.agent.execution.TaskExecutor
 import com.orca.agent.agent.DigitalTwin
 import com.orca.agent.data.database.OrcaDatabase
+import com.orca.agent.agent.GoalManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -19,6 +18,7 @@ class OrcaCore @Inject constructor(
     val memoryCortex: MemoryCortex,
     val taskExecutor: TaskExecutor,
     val digitalTwin: DigitalTwin,
+    val goalManager: GoalManager,
     val database: OrcaDatabase
 ) {
     private val coreScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -29,90 +29,193 @@ class OrcaCore @Inject constructor(
     private val _activeTaskChain = MutableStateFlow<TaskChain?>(null)
     val activeTaskChain: StateFlow<TaskChain?> = _activeTaskChain.asStateFlow()
     
-    private val _thoughtStream = MutableSharedFlow<String>(replay = 100)
+    private val _thoughtStream = MutableSharedFlow<String>(replay = 200)
     val thoughtStream: SharedFlow<String> = _thoughtStream.asSharedFlow()
     
-    private var isInitialized = false
+    private val _dailySummary = MutableStateFlow<String?>(null)
+    val dailySummary: StateFlow<String?> = _dailySummary.asStateFlow()
     
+    private var isInitialized = false
+    private var autoPilotLevel = 0 // 0=manual, 1=confirm, 2=semi-auto, 3=full auto
+
     fun initialize() {
         if (isInitialized) return
         
         coreScope.launch {
-            emitThought("Orca Core initializing...")
+            emitThought("🚀 Orca Core initializing...")
             
-            // Initialize subsystems
             consciousMind.initialize()
             subconsciousEngine.initialize()
             memoryCortex.initialize()
-            
-            // Warm up the digital twin
             digitalTwin.loadProfile()
+            goalManager.initialize()
             
             isInitialized = true
             _cognitiveState.value = CognitiveState.IDLE
-            emitThought("Orca is alive. Abyssal Neon online.")
+            emitThought("✅ Orca is alive. Abyssal Neon v2.0 online.")
+            
+            // Start passive observation for pattern learning
+            startPassiveObservation()
         }
     }
+
+    // ============================================================
+    // PILLAR 1: GOAL-DRIVEN EXECUTION
+    // ============================================================
     
     suspend fun processUserIntent(input: UserInput): IntentResult {
         _cognitiveState.value = CognitiveState.PLANNING
-        emitThought("Processing: ${input.summarize()}")
+        emitThought("📋 Processing: ${input.summarize()}")
         
-        // 1. Perception - Understand context
-        val context = buildContext(input)
+        // Build rich context
+        val context = AgentContext(
+            currentScreen = ScreenState.capture(),
+            memoryItems = memoryCortex.getRelevantMemories(input.text ?: "", 10),
+            userProfile = digitalTwin.getProfile()
+        )
         
-        // 2. Conscious planning via Gemini
-        val plan = consciousMind.generatePlan(input, context)
+        // Check if this is a known goal
+        val existingGoal = goalManager.findSimilarGoal(input.text ?: "")
+        if (existingGoal != null) {
+            emitThought("🎯 Found existing goal: ${existingGoal.description}")
+            context.copy(activeGoal = existingGoal)
+        }
         
-        // 3. Execute if autonomous
-        if (plan.isAutonomous) {
-            _activeTaskChain.value = plan.taskChain
-            _cognitiveState.value = CognitiveState.EXECUTING
-            taskExecutor.executeChain(plan.taskChain)
+        // Generate plan via ConsciousMind (Gemini)
+        val plan = consciousMind.plan(input.text ?: "", context)
+        
+        if (plan.nodes.isEmpty()) {
+            return IntentResult(
+                response = "I couldn't create a plan for that. Could you provide more details?",
+                requiresInput = true
+            )
+        }
+        
+        // Check for sensitive actions
+        val hasSensitiveActions = plan.nodes.any { 
+            it.requiresConfirmation || it.riskLevel == RiskLevel.HIGH 
+        }
+        
+        if (hasSensitiveActions && autoPilotLevel < 2) {
+            return IntentResult(
+                response = "This task contains sensitive actions. I'll need your confirmation.",
+                taskChain = plan,
+                requiresInput = true
+            )
+        }
+        
+        // Execute autonomously
+        _activeTaskChain.value = plan
+        _cognitiveState.value = CognitiveState.EXECUTING
+        
+        coreScope.launch {
+            val result = taskExecutor.executeChain(plan)
+            handleExecutionResult(result, plan)
         }
         
         return IntentResult(
-            response = plan.response,
-            taskChain = plan.taskChain,
-            requiresInput = plan.requiresHumanInput
+            response = "I've created a ${plan.nodes.size}-step plan. Executing now.",
+            taskChain = plan,
+            requiresInput = false
         )
     }
+
+    // ============================================================
+    // PASSIVE OBSERVATION FOR PATTERN LEARNING
+    // ============================================================
     
-    fun resumeSession(sessionId: String) {
+    private fun startPassiveObservation() {
         coreScope.launch {
-            val session = memoryCortex.memoryStream.loadSession(sessionId)
-            if (session?.isPaused == true) {
-                _activeTaskChain.value = session.taskChain
-                _cognitiveState.value = CognitiveState.EXECUTING
-                emitThought("Resuming session: ${session.title}")
-                taskExecutor.executeChain(session.taskChain)
+            while (isActive) {
+                delay(30000) // Check every 30 seconds
+                
+                if (_cognitiveState.value == CognitiveState.IDLE) {
+                    val currentScreen = ScreenState.capture()
+                    if (!currentScreen.isEmpty()) {
+                        subconsciousEngine.recordObservation(currentScreen)
+                    }
+                }
+            }
+        }
+        
+        // Weekly reflection
+        coreScope.launch {
+            while (isActive) {
+                delay(7 * 24 * 60 * 60 * 1000L) // Every 7 days
+                performWeeklyReflection()
             }
         }
     }
     
-    fun enableAutoPilot() {
-        _cognitiveState.value = CognitiveState.AUTONOMOUS
+    private suspend fun performWeeklyReflection() {
+        emitThought("📊 Performing weekly reflection...")
+        val patterns = subconsciousEngine.extractPatterns()
+        goalManager.updateGoalsFromPatterns(patterns)
+        
+        val summary = consciousMind.generateDailySummary()
+        _dailySummary.value = summary
+        emitThought("📝 Weekly summary ready")
+    }
+
+    // ============================================================
+    // EXECUTION RESULT HANDLING
+    // ============================================================
+    
+    private suspend fun handleExecutionResult(result: ExecutionResult, plan: TaskChain) {
+        when (result) {
+            is ExecutionResult.Success -> {
+                _cognitiveState.value = CognitiveState.IDLE
+                _activeTaskChain.value = null
+                goalManager.markGoalCompleted(plan.goal)
+            }
+            is ExecutionResult.Failure -> {
+                _cognitiveState.value = CognitiveState.ERROR
+                if (result.canRecover) {
+                    emitThought("🔄 Attempting recovery...")
+                    // Re-plan from current state
+                    val newPlan = consciousMind.plan(
+                        "Recover from failure: ${result.error}",
+                        AgentContext(currentScreen = ScreenState.capture())
+                    )
+                    if (newPlan.nodes.isNotEmpty()) {
+                        _activeTaskChain.value = newPlan
+                        taskExecutor.executeChain(newPlan)
+                    }
+                }
+            }
+            is ExecutionResult.NeedsConfirmation -> {
+                _cognitiveState.value = CognitiveState.AWAITING_CONFIRMATION
+            }
+        }
+    }
+
+    // ============================================================
+    // AUTOPILOT MANAGEMENT
+    // ============================================================
+    
+    fun enableAutoPilot(level: Int = 1) {
+        autoPilotLevel = level
+        _cognitiveState.value = when (level) {
+            3 -> CognitiveState.AUTONOMOUS
+            else -> CognitiveState.IDLE
+        }
         subconsciousEngine.enableContinuousMonitoring()
-        emitThought("AutoPilot engaged. I am your digital twin.")
+        emitThought("🤖 AutoPilot level $level engaged")
     }
     
     fun disableAutoPilot() {
+        autoPilotLevel = 0
         _cognitiveState.value = CognitiveState.IDLE
         subconsciousEngine.disableContinuousMonitoring()
-        emitThought("AutoPilot disengaged. Manual mode.")
+        emitThought("🔒 AutoPilot disengaged")
     }
-    
-    private fun buildContext(input: UserInput): AgentContext {
-        return AgentContext(
-            currentScreen = ScreenState.capture(),
-            recentMemories = memoryCortex.getRecentMemories(50),
-            digitalTwinProfile = digitalTwin.getProfile(),
-            activeGoals = memoryCortex.getActiveGoals()
-        )
-    }
+
+    // ============================================================
+    // UTILITY
+    // ============================================================
     
     private suspend fun emitThought(thought: String) {
-        _thoughtStream.emit("[${System.currentTimeMillis()}] $thought")
+        _thoughtStream.emit("[OrcaCore] $thought")
     }
     
     fun shutdown() {
@@ -121,29 +224,8 @@ class OrcaCore @Inject constructor(
     }
 }
 
-enum class CognitiveState {
-    IDLE, PLANNING, EXECUTING, AUTONOMOUS, AWAITING_INPUT, ERROR, SHUTDOWN
-}
-
-data class UserInput(
-    val text: String?,
-    val imageBase64: String?,
-    val voiceInput: ByteArray?,
-    val type: InputType
-) {
-    fun summarize(): String = when(type) {
-        InputType.TEXT -> text?.take(100) ?: "Text input"
-        InputType.IMAGE -> "Image input (${imageBase64?.length?.div(1024)}KB)"
-        InputType.VOICE -> "Voice input"
-        InputType.SEE_AND_ACT -> "SeeAndAct camera input"
-    }
-}
-
-enum class InputType { TEXT, IMAGE, VOICE, SEE_AND_ACT }
-
-data class AgentContext(
-    val currentScreen: ScreenState,
-    val recentMemories: List<MemoryEntry>,
-    val digitalTwinProfile: DigitalTwinProfile,
-    val activeGoals: List<Goal>
+data class IntentResult(
+    val response: String,
+    val taskChain: TaskChain? = null,
+    val requiresInput: Boolean = false
 )
