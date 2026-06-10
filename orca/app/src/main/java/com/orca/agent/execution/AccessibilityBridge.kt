@@ -213,3 +213,32 @@ sealed class ActionResult {
     data class Failure(val error: String) : ActionResult()
     data class NeedsUserInput(val question: String) : ActionResult()
 }
+// Add to AccessibilityBridge class
+
+private val touchHoldDetector = TouchHoldDetector()
+private val pauseResumeNotificationManager = PauseResumeNotificationManager(this)
+
+// Override onMotionEvent if available, or use accessibility event interception
+override fun onAccessibilityEvent(event: AccessibilityEvent) {
+    super.onAccessibilityEvent(event)
+    
+    // Check for touch events
+    if (event.eventType == AccessibilityEvent.TYPE_TOUCH_INTERACTION_START ||
+        event.eventType == AccessibilityEvent.TYPE_TOUCH_EXPLORATION_GESTURE_START) {
+        
+        // Get touch coordinates from event
+        val x = event.parcelableData // Extract coordinates
+        // Forward to touch hold detector
+        // touchHoldDetector.onTouchEvent(...)
+    }
+    
+    // Normal screen parsing
+    rootInActiveWindow?.let {
+        _screenState.value = ScreenState.fromAccessibilityNode(it)
+    }
+}
+
+// Method to intercept gestures before Orca executes them
+fun shouldAllowGesture(): Boolean {
+    return touchHoldDetector.pauseState.value != PauseState.PAUSED
+}
