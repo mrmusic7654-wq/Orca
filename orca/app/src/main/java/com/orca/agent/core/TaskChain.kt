@@ -1,48 +1,46 @@
-// app/src/main/java/com/orca/agent/core/TaskChain.kt - REPLACE WITH REAL CONTENT
 package com.orca.agent.core
-
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
 
 data class TaskChain(
     val id: String,
-    val name: String,
+    val goal: String,
     val description: String,
     val nodes: List<TaskNode>,
     val currentNodeIndex: Int = 0,
     val status: ChainStatus = ChainStatus.PENDING,
-    val createdAt: Long = System.currentTimeMillis()
+    val alternativePaths: Map<Int, List<TaskNode>> = emptyMap(), // Node index -> alternative sub-plans
+    val recoveryAttempts: Int = 0,
+    val maxRecoveryAttempts: Int = 5,
+    val createdAt: Long = System.currentTimeMillis(),
+    val updatedAt: Long = System.currentTimeMillis()
 ) {
-    fun summarize(): String {
-        return "TaskChain[$name]: ${nodes.size} steps, " +
-               "current: ${nodes.getOrNull(currentNodeIndex)?.description ?: "none"}, " +
-               "completed: ${nodes.count { it.status == NodeStatus.COMPLETED }}/${nodes.size}"
-    }
-    
-    companion object {
-        fun fromJson(json: String): TaskChain {
-            // Parse Gemini's JSON response into a TaskChain
-            return TaskChain(
-                id = java.util.UUID.randomUUID().toString(),
-                name = "Parsed Task",
-                description = "",
-                nodes = emptyList()
-            )
-        }
-    }
+    fun currentNode(): TaskNode? = nodes.getOrNull(currentNodeIndex)
+    fun progress(): Float = if (nodes.isEmpty()) 0f else 
+        currentNodeIndex.toFloat() / nodes.size.toFloat()
+    fun isComplete(): Boolean = currentNodeIndex >= nodes.size
 }
 
 data class TaskNode(
-    val id: String,
+    val id: String = java.util.UUID.randomUUID().toString(),
     val description: String,
     val action: AgentAction,
-    val expectedResult: String,
+    val expectedResult: String, // What screen/text should appear after this action
+    val preconditions: List<String> = emptyList(), // What must be true before executing
     val fallbackAction: AgentAction? = null,
+    val alternativeNode: TaskNode? = null, // If this fails, try this alternative
     val status: NodeStatus = NodeStatus.PENDING,
     val retryCount: Int = 0,
     val maxRetries: Int = 3,
-    val requiresConfirmation: Boolean = false
+    val requiresConfirmation: Boolean = false,
+    val riskLevel: RiskLevel = RiskLevel.LOW,
+    val timeoutMs: Long = 5000 // Max time to wait for expected result
 )
 
-enum class ChainStatus { PENDING, IN_PROGRESS, PAUSED, COMPLETED, FAILED }
-enum class NodeStatus { PENDING, IN_PROGRESS, COMPLETED, FAILED, SKIPPED }
+enum class ChainStatus { 
+    PENDING, IN_PROGRESS, AWAITING_RECOVERY, 
+    AWAITING_CONFIRMATION, COMPLETED, FAILED, ABANDONED 
+}
+
+enum class NodeStatus { 
+    PENDING, IN_PROGRESS, VERIFIED, 
+    NEEDS_RECOVERY, FAILED, SKIPPED 
+}
