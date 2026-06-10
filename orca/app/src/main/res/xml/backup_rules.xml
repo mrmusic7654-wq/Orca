@@ -1,1 +1,8 @@
-// app/src/main/res/xml/backup_rules.xml - REPLACE WITH REAL CONTENT
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <include domain="sharedpref" path="."/>
+    <include domain="database" path="orca_database"/>
+    <include domain="file" path="orca_data"/>
+    <exclude domain="file" path="orca_cache"/>
+    <exclude domain="file" path="orca_temp"/>
+</full-backup-content>
