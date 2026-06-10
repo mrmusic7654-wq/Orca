@@ -1,1 +1,29 @@
-// app/src/main/res/drawable/ic_launcher_foreground.xml - REPLACE WITH REAL CONTENT
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Outer ring -->
+    <path
+        android:pathData="M54,54m-35,0a35,35 0,1 1,70 0a35,35 0,1 1,-70 0"
+        android:strokeColor="#66FF3A2D"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"/>
+    
+    <!-- Inner orb -->
+    <path
+        android:pathData="M54,54m-20,0a20,20 0,1 1,40 0a20,20 0,1 1,-40 0"
+        android:fillColor="#FFFF3A2D"/>
+    
+    <!-- Highlight -->
+    <path
+        android:pathData="M46,46m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0"
+        android:fillColor="#33FFFFFF"/>
+    
+    <!-- "O" letterform -->
+    <path
+        android:pathData="M54,46c-4.4,0 -8,3.6 -8,8s3.6,8 8,8s8,-3.6 8,-8s-3.6,-8 -8,-8zM54,50c2.2,0 4,1.8 4,4s-1.8,4 -4,4s-4,-1.8 -4,-4s1.8,-4 4,-4z"
+        android:fillColor="#FF000100"/>
+</vector>
