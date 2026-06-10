@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 @HiltAndroidApp
 class OrcaApplication : Application() {
-
+    
     @Inject
     lateinit var orcaCore: OrcaCore
 
