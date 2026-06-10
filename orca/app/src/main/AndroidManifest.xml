@@ -57,6 +57,27 @@
             android:name=".core.OrcaForegroundService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
+      <!-- Add to AndroidManifest.xml -->
 
+<!-- Broadcast Receiver for notification actions -->
+<receiver
+    android:name=".core.PauseResumeReceiver"
+    android:exported="false">
+    <intent-filter>
+        <action android:name="com.orca.agent.RESUME_TASK" />
+        <action android:name="com.orca.agent.CANCEL_TASK" />
+        <action android:name="com.orca.agent.CANCEL_RESUME" />
+    </intent-filter>
+</receiver>
+
+<!-- Foreground service for persistent notification -->
+<service
+    android:name=".core.PauseResumeService"
+    android:exported="false"
+    android:foregroundServiceType="specialUse">
+    <property
+        android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+        android:value="task_control" />
+</service>
     </application>
 </manifest>
