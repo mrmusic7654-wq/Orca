@@ -447,3 +447,63 @@ sealed class NodeExecutionResult {
     data class NeedsConfirmation(val question: String, val riskLevel: RiskLevel) : NodeExecutionResult()
     data class FailedPermanently(val reason: String) : NodeExecutionResult()
 }
+// Add this to the existing TaskExecutor class
+
+// ============================================================
+// PAUSE/RESUME SUPPORT
+// ============================================================
+
+private var isPaused = false
+private var pauseLock = java.util.concurrent.locks.ReentrantLock()
+private var pauseCondition = pauseLock.newCondition()
+
+suspend fun checkPauseState() {
+    if (isPaused) {
+        // Wait until resumed
+        withContext(Dispatchers.IO) {
+            pauseLock.lock()
+            try {
+                while (isPaused) {
+                    pauseCondition.await()
+                }
+            } finally {
+                pauseLock.unlock()
+            }
+        }
+    }
+}
+
+fun pauseExecution(taskName: String, currentStep: Int, totalSteps: Int) {
+    isPaused = true
+    pauseResumeNotificationManager.showPausedNotification(
+        taskName = taskName,
+        currentStep = currentStep,
+        totalSteps = totalSteps,
+        pausedAt = System.currentTimeMillis()
+    )
+}
+
+fun resumeExecution() {
+    pauseLock.lock()
+    try {
+        isPaused = false
+        pauseCondition.signalAll()
+    } finally {
+        pauseLock.unlock()
+    }
+}
+
+// Modified executeNode method to check pause state
+private suspend fun executeNodeWithFullRecovery(
+    node: TaskNode,
+    chain: TaskChain,
+    index: Int
+): NodeExecutionResult {
+    // CHECK PAUSE STATE before each action
+    checkPauseState()
+    
+    // ... rest of existing implementation
+    
+    // Also check after recovery
+    checkPauseState()
+}
