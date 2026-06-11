@@ -1,25 +1,141 @@
-
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- App -->
     <string name="app_name">Orca</string>
     <string name="app_tagline">Abyssal Neon</string>
     
-    <!-- Accessibility -->
+    <!-- Accessibility Service -->
     <string name="accessibility_service_description">Orca uses Accessibility Service to control your phone autonomously. It can tap, swipe, type, and navigate apps on your behalf.</string>
+    <string name="accessibility_service_label">Orca Accessibility Bridge</string>
+    
+    <!-- Notifications -->
+    <string name="notification_channel_name">Orca Agent</string>
+    <string name="notification_channel_description">Ongoing notification for Orca autonomous agent service</string>
+    <string name="notification_autopilot_active">AutoPilot is active. Orca is controlling your device.</string>
+    <string name="notification_task_executing">Executing task chain</string>
+    <string name="notification_task_paused">Orca PAUSED</string>
+    <string name="notification_task_resuming">Resuming in %d...</string>
+    <string name="notification_task_resumed">Orca RESUMED</string>
+    <string name="notification_task_cancelled">Task Cancelled</string>
+    <string name="notification_watchdog_title">Orca Watchdog</string>
+    <string name="notification_watchdog_text">Monitoring accessibility service health</string>
+    <string name="notification_emergency_stop">EMERGENCY STOP - All actions suspended</string>
     
     <!-- Permissions -->
     <string name="permission_accessibility_title">Accessibility Required</string>
     <string name="permission_accessibility_message">Orca needs accessibility access to interact with your screen like a human. This is essential for autonomous task execution.</string>
     <string name="permission_overlay_title">Overlay Required</string>
     <string name="permission_overlay_message">Orca needs overlay permission to display its interface above other apps.</string>
-    
-    <!-- Notifications -->
-    <string name="notification_channel_name">Orca Agent</string>
-    <string name="notification_channel_description">Ongoing notification for Orca autonomous agent service</string>
-    <string name="notification_autopilot_active">AutoPilot is active. Orca is controlling your device.</string>
-    <string name="notification_task_executing">Executing task chain…</string>
+    <string name="permission_notification_title">Notification Access Required</string>
+    <string name="permission_notification_message">Orca needs notification access to read and respond to notifications on your behalf.</string>
+    <string name="permission_camera_title">Camera Required</string>
+    <string name="permission_camera_message">Orca uses the camera for SeeAndAct feature to understand the world around you.</string>
+    <string name="permission_microphone_title">Microphone Required</string>
+    <string name="permission_microphone_message">Orca uses the microphone for voice commands and ambient context detection.</string>
     
     <!-- Security -->
     <string name="biometric_prompt_title">Orca Security Checkpoint</string>
     <string name="biometric_prompt_subtitle">Verify your identity to allow this action</string>
+    <string name="biometric_prompt_description">Orca needs to verify it\'s you before proceeding with this sensitive action.</string>
+    <string name="biometric_prompt_negative">Cancel</string>
+    <string name="biometric_timeout_message">Authentication timed out. Task has been paused for security.</string>
+    <string name="security_sensitive_action_warning">This action requires additional verification.</string>
+    
+    <!-- Pause/Resume -->
+    <string name="pause_hold_countdown">Hold for %d...</string>
+    <string name="pause_confirmed">PAUSED</string>
+    <string name="pause_already_paused">Already Paused</string>
+    <string name="resume_countdown">Resuming in %d...</string>
+    <string name="resume_cancel">Cancel Resume</string>
+    <string name="resume_button">RESUME</string>
+    <string name="cancel_task_button">CANCEL TASK</string>
+    
+    <!-- AutoPilot -->
+    <string name="autopilot_enabled">AutoPilot Engaged</string>
+    <string name="autopilot_disabled">Manual Mode</string>
+    <string name="autopilot_description">Orca is fully autonomous</string>
+    <string name="autopilot_warning">AutoPilot will allow Orca to act without confirmation. Enable with caution.</string>
+    
+    <!-- Ethical Warnings -->
+    <string name="ethical_blocked_title">Action Blocked</string>
+    <string name="ethical_blocked_financial">Large financial transaction detected. Requires additional verification.</string>
+    <string name="ethical_blocked_privacy">This action would share sensitive personal information.</string>
+    <string name="ethical_blocked_mass_action">Mass action detected. Requires individual confirmation.</string>
+    <string name="ethical_blocked_outdated">This contact information may be outdated. Proceed with caution.</string>
+    <string name="ethical_blocked_dangerous">This action could result in harm. Orca cannot execute it.</string>
+    
+    <!-- UI -->
+    <string name="orb_state_idle">Awaiting command</string>
+    <string name="orb_state_thinking">Processing</string>
+    <string name="orb_state_executing">Executing</string>
+    <string name="orb_state_autonomous">AutoPilot</string>
+    <string name="orb_state_awaiting_input">Input Required</string>
+    <string name="orb_state_error">Error</string>
+    <string name="orb_state_paused">Paused</string>
+    
+    <!-- Command Deck -->
+    <string name="command_placeholder">Message Orca...</string>
+    <string name="command_voice">Voice</string>
+    <string name="command_image">Image</string>
+    <string name="command_file">File</string>
+    <string name="command_deep_think">Deep Think</string>
+    <string name="command_send">Send</string>
+    
+    <!-- Memory Stream -->
+    <string name="memory_title">Memory Stream</string>
+    <string name="memory_search">Search memory stream...</string>
+    <string name="memory_empty">No memories yet.\nThe timeline begins now.</string>
+    <string name="memory_fork">Fork</string>
+    <string name="memory_merge">Merge</string>
+    <string name="memory_resume">Resume</string>
+    <string name="memory_active">Active</string>
+    <string name="memory_paused">Paused</string>
+    <string name="memory_complete">Complete</string>
+    
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_agent_config">Agent Configuration</string>
+    <string name="settings_autopilot">AutoPilot Mode</string>
+    <string name="settings_autopilot_desc">Enable full autonomous agent behavior</string>
+    <string name="settings_deep_think">Deep Think Mode</string>
+    <string name="settings_deep_think_desc">Use more compute for complex task planning</string>
+    <string name="settings_silent_tasks">Silent Background Tasks</string>
+    <string name="settings_silent_tasks_desc">Optimize device during idle time</string>
+    <string name="settings_security">Security</string>
+    <string name="settings_threat_detection">Threat Detection</string>
+    <string name="settings_threat_detection_desc">Scan for phishing and malicious content</string>
+    <string name="settings_biometric">Biometric Checkpoints</string>
+    <string name="settings_biometric_desc">Require fingerprint for sensitive actions</string>
+    <string name="settings_voice">Voice Output</string>
+    <string name="settings_voice_desc">Orca speaks responses aloud</string>
+    <string name="settings_autoreply">Auto-Reply</string>
+    <string name="settings_autoreply_desc">Automatically respond to trusted contacts</string>
+    <string name="settings_data">Data and Storage</string>
+    <string name="settings_memory_usage">Memory Usage</string>
+    <string name="settings_export_data">Export All Data</string>
+    <string name="settings_clear_memory">Clear Memory Stream</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">ORCA v2.0.0</string>
+    <string name="settings_codename">Codename: Abyssal Neon</string>
+    <string name="settings_powered_by">Powered by Gemini 2.5 Flash</string>
+    
+    <!-- Errors -->
+    <string name="error_gemini_api">Gemini API error. Please try again.</string>
+    <string name="error_network">Network connection lost. Check your internet.</string>
+    <string name="error_accessibility">Accessibility Service not running. Please enable in Settings.</string>
+    <string name="error_permission">Required permission not granted.</string>
+    <string name="error_battery_low">Battery too low to execute tasks.</string>
+    <string name="error_app_not_found">App not found. It may have been uninstalled.</string>
+    <string name="error_credentials_expired">Stored credentials may have expired.</string>
+    <string name="error_screen_recording">Screen recording detected. Actions paused for privacy.</string>
+    <string name="error_emergency_call">Emergency call in progress. All actions suspended.</string>
+    
+    <!-- Dead Man Switch -->
+    <string name="deadman_warning">Orca hasn\'t detected activity in 3 days.</string>
+    <string name="deadman_critical">Orca hasn\'t detected activity in 7 days. Shutting down soon.</string>
+    <string name="deadman_shutdown">Orca has entered dormant mode due to inactivity.</string>
+    
+    <!-- Two User Mode -->
+    <string name="two_user_paused">Task paused. Second user can use the device.</string>
+    <string name="two_user_resuming">Resuming task. Please wait...</string>
 </resources>
