@@ -4,15 +4,31 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    
+    <!-- Outer glow ring -->
     <path
         android:pathData="M54,54m-50,0a50,50 0,1 1,100 0a50,50 0,1 1,-100 0"
         android:fillColor="#1AFF3A2D"/>
+    
+    <!-- Accretion disk ring -->
     <path
         android:pathData="M54,54m-45,0a45,45 0,1 1,90 0a45,45 0,1 1,-90 0"
         android:strokeColor="#4DFF3A2D"
         android:strokeWidth="2"
         android:fillColor="#00000000"/>
+    
+    <!-- Inner orb body -->
     <path
-        android:pathData="M54,54m-20,0a20,20 0,1 1,40 0a20,20 0,1 1,-40 0"
+        android:pathData="M54,54m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0"
         android:fillColor="#FFFF3A2D"/>
+    
+    <!-- Inner dark core -->
+    <path
+        android:pathData="M54,54m-15,0a15,15 0,1 1,30 0a15,15 0,1 1,-30 0"
+        android:fillColor="#FF000100"/>
+    
+    <!-- Surface highlight -->
+    <path
+        android:pathData="M44,42m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0"
+        android:fillColor="#33FFFFFF"/>
 </vector>
