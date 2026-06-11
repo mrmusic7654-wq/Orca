@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.Orca.AbyssalNeon" parent="android:Theme.Material.NoActionBar">
-        <item name="android:colorBackground">#FF000100</item>
-        <item name="android:statusBarColor">#FF000100</item>
-        <item name="android:navigationBarColor">#FF0A0B0F</item>
+        <item name="android:colorBackground">@color/vanta_black</item>
+        <item name="android:statusBarColor">@color/vanta_black</item>
+        <item name="android:navigationBarColor">@color/abyss_black</item>
         <item name="android:windowBackground">@color/vanta_black</item>
-        <item name="android:colorPrimary">#FFFF3A2D</item>
-        <item name="android:colorAccent">#FF00E5FF</item>
+        <item name="android:colorPrimary">@color/neon_red</item>
+        <item name="android:colorAccent">@color/cyan_intelligence</item>
     </style>
-    
-    <color name="vanta_black">#FF000100</color>
-    <color name="abyss_black">#FF0A0B0F</color>
-    <color name="neon_red">#FFFF3A2D</color>
-    <color name="cyan_intelligence">#FF00E5FF</color>
 </resources>
