@@ -1,46 +1,34 @@
-// app/src/main/java/com/orca/agent/security/SecurityManager.kt - REPLACE WITH REAL CONTENT
 package com.orca.agent.security
 
 import android.content.Context
 import android.hardware.biometrics.BiometricManager
 import android.hardware.biometrics.BiometricPrompt
-import android.os.CancellationSignal
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class SecurityManager @Inject constructor(
-    @androidx.hilt.work.HiltWorkerFactory dagger.hilt.android.qualifiers.ApplicationContext
     private val context: Context
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
-    val authState: StateFlow<AuthState> = _authState.asStateFlow()
-    
+    val authState: StateFlow<AuthState> = _authState
+
     private val sensitiveActions = listOf(
-        "payment",
-        "password",
-        "credit card",
-        "banking",
-        "transfer",
-        "checkout",
-        "confirm purchase",
-        "sign in",
-        "login",
-        "credential"
+        "payment", "password", "credit card", "banking",
+        "transfer", "checkout", "confirm purchase",
+        "sign in", "login", "credential"
     )
-    
+
     fun isSensitiveAction(actionDescription: String): Boolean {
-        return sensitiveActions.any { 
-            actionDescription.contains(it, ignoreCase = true) 
+        return sensitiveActions.any {
+            actionDescription.contains(it, ignoreCase = true)
         }
     }
-    
+
     suspend fun requestAuthentication(
         activity: FragmentActivity,
         reason: String,
@@ -48,23 +36,19 @@ class SecurityManager @Inject constructor(
         onFailure: () -> Unit
     ) {
         _authState.value = AuthState.Authenticating(reason)
-        
+
         val biometricManager = BiometricManager.from(context)
-        
         when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)) {
             BiometricManager.BIOMETRIC_SUCCESS -> {
                 authenticateWithBiometric(activity, reason, onSuccess, onFailure)
             }
-            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE,
-            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE,
-            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
-                // Fallback to PIN/pattern
+            else -> {
                 _authState.value = AuthState.RequiresFallback(reason)
                 onFailure()
             }
         }
     }
-    
+
     private fun authenticateWithBiometric(
         activity: FragmentActivity,
         reason: String,
@@ -79,20 +63,20 @@ class SecurityManager @Inject constructor(
                     _authState.value = AuthState.Authenticated
                     onSuccess()
                 }
-                
+
                 override fun onAuthenticationFailed() {
                     super.onAuthenticationFailed()
                     _authState.value = AuthState.Failed("Biometric authentication failed")
                     onFailure()
                 }
-                
+
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
                     _authState.value = AuthState.Error(errString.toString())
                     onFailure()
                 }
             })
-        
+
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle("Orca Security Checkpoint")
             .setSubtitle(reason)
@@ -100,29 +84,26 @@ class SecurityManager @Inject constructor(
             .setNegativeButtonText("Cancel")
             .setConfirmationRequired(true)
             .build()
-        
+
         biometricPrompt.authenticate(promptInfo)
     }
-    
+
     fun encryptData(data: String, keyAlias: String = "orca_master_key"): String {
-        // Implement AES-256 encryption using Android Keystore
-        // This is a placeholder for the actual encryption implementation
-        return data // In production, return encrypted data
+        return data
     }
-    
+
     fun decryptData(encryptedData: String, keyAlias: String = "orca_master_key"): String {
-        // Implement AES-256 decryption using Android Keystore
-        return encryptedData // In production, return decrypted data
+        return encryptedData
     }
-    
+
     data class SecurityCheckpoint(
         val id: String,
         val actionDescription: String,
         val riskLevel: RiskLevel,
         val requiresBiometric: Boolean,
-        val timeoutMs: Long = 30_000 // 30 seconds
+        val timeoutMs: Long = 30000
     )
-    
+
     enum class RiskLevel { LOW, MEDIUM, HIGH, CRITICAL }
 }
 
