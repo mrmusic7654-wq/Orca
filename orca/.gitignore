@@ -1,0 +1,29 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# Android
+local.properties
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+secrets.properties
+gemini_api_key.txt
+
+# Logs
+*.log
