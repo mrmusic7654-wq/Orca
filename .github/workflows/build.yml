@@ -19,36 +19,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Generate Gradle wrapper if missing
-        run: |
-          cd orca
-          if [ ! -f "gradlew" ]; then
-            echo "Generating gradle wrapper..."
-            wget -q https://services.gradle.org/distributions/gradle-8.4-bin.zip
-            unzip -q gradle-8.4-bin.zip
-            mkdir -p gradle/wrapper
-            cp gradle-8.4/lib/gradle-wrapper-*.jar gradle/wrapper/gradle-wrapper.jar
-            rm -rf gradle-8.4 gradle-8.4-bin.zip
-            
-            cat > gradlew << 'EOF'
-#!/bin/sh
-APP_BASE_NAME=`basename "$0"`
-DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
-CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
-JAVACMD="java"
-exec "$JAVACMD" $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS \
-  "-Dorg.gradle.appname=$APP_BASE_NAME" \
-  -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
-EOF
-            chmod +x gradlew
-          fi
-          echo "✅ gradlew ready"
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Build Debug APK
         working-directory: orca
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: ./gradlew assembleDebug
+        run: gradle assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
