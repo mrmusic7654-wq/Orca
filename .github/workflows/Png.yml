@@ -1,0 +1,74 @@
+name: Generate PNG Icons
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-pngs:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install ImageMagick
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
+
+      - name: Create density folders
+        run: |
+          for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            mkdir -p orca/app/src/main/res/mipmap-$d
+            mkdir -p orca/app/src/main/res/drawable-$d
+          done
+
+      - name: Generate launcher icon (ic_launcher.png)
+        run: |
+          convert -size 1024x1024 xc:'#000100' \
+            -fill '#FF3A2D' -draw "circle 512,512 512,180" \
+            -fill '#000100' -draw "circle 512,512 512,320" \
+            orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          
+          convert orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png -resize 768x768 orca/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          convert orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png -resize 512x512 orca/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          convert orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png -resize 384x384 orca/app/src/main/res/mipmap-hdpi/ic_launcher.png
+          convert orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png -resize 256x256 orca/app/src/main/res/mipmap-mdpi/ic_launcher.png
+
+      - name: Generate adaptive foreground (ic_launcher_foreground.png)
+        run: |
+          convert -size 1024x1024 xc:'transparent' \
+            -fill '#FF3A2D' -draw "circle 512,512 512,280" \
+            -fill '#000100' -draw "circle 512,512 512,380" \
+            orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png
+          
+          convert orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png -resize 768x768 orca/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png
+          convert orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png -resize 512x512 orca/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png
+          convert orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png -resize 384x384 orca/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png
+          convert orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png -resize 256x256 orca/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
+
+      - name: Generate adaptive background (ic_launcher_background.png)
+        run: |
+          convert -size 1024x1024 xc:'#000100' orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png
+          convert orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png -resize 768x768 orca/app/src/main/res/mipmap-xxhdpi/ic_launcher_background.png
+          convert orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png -resize 512x512 orca/app/src/main/res/mipmap-xhdpi/ic_launcher_background.png
+          convert orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png -resize 384x384 orca/app/src/main/res/mipmap-hdpi/ic_launcher_background.png
+          convert orca/app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png -resize 256x256 orca/app/src/main/res/mipmap-mdpi/ic_launcher_background.png
+
+      - name: Generate notification icon (ic_orca_orb.png)
+        run: |
+          convert -size 256x256 xc:'transparent' \
+            -fill 'white' -draw "circle 128,128 128,50" \
+            orca/app/src/main/res/drawable-xxxhdpi/ic_orca_orb.png
+          
+          convert orca/app/src/main/res/drawable-xxxhdpi/ic_orca_orb.png -resize 192x192 orca/app/src/main/res/drawable-xxhdpi/ic_orca_orb.png
+          convert orca/app/src/main/res/drawable-xxxhdpi/ic_orca_orb.png -resize 128x128 orca/app/src/main/res/drawable-xhdpi/ic_orca_orb.png
+          convert orca/app/src/main/res/drawable-xxxhdpi/ic_orca_orb.png -resize 96x96 orca/app/src/main/res/drawable-hdpi/ic_orca_orb.png
+          convert orca/app/src/main/res/drawable-xxxhdpi/ic_orca_orb.png -resize 64x64 orca/app/src/main/res/drawable-mdpi/ic_orca_orb.png
+
+      - name: Commit and push PNGs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add orca/app/src/main/res/mipmap-*/
+          git add orca/app/src/main/res/drawable-*/
+          git commit -m "🤖 Auto-generate PNG icons (all densities)" || echo "No changes to commit"
+          git push origin main
