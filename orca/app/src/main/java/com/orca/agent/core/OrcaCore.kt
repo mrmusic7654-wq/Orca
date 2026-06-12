@@ -23,26 +23,23 @@ class OrcaCore @Inject constructor(
     val activeTaskChain: StateFlow<TaskChain?> = _activeTaskChain.asStateFlow()
     private val _thoughtStream = MutableSharedFlow<String>(replay = 200)
     val thoughtStream: SharedFlow<String> = _thoughtStream.asSharedFlow()
-    private var isInitialized = false
+
+    companion object {
+        @Volatile private var INSTANCE: OrcaCore? = null
+        fun getInstance(): OrcaCore = INSTANCE ?: throw IllegalStateException("OrcaCore not initialized")
+        fun setInstance(instance: OrcaCore) { INSTANCE = instance }
+    }
 
     fun initialize() {
-        if (isInitialized) return
         coreScope.launch {
-            consciousMind.initialize(); subconsciousEngine.initialize()
-            memoryCortex.initialize(); digitalTwin.loadProfile()
-            isInitialized = true; _cognitiveState.value = CognitiveState.IDLE
+            _cognitiveState.value = CognitiveState.IDLE
         }
     }
 
     suspend fun processUserIntent(input: UserInput): IntentResult {
         _cognitiveState.value = CognitiveState.PLANNING
-        val context = AgentContext(currentScreen = ScreenState.capture())
-        val plan = consciousMind.plan(input.text ?: "", context)
-        if (plan.nodes.isNotEmpty()) {
-            _activeTaskChain.value = plan
-            _cognitiveState.value = CognitiveState.EXECUTING
-            taskExecutor.executeChain(plan)
-        }
+        val plan = consciousMind.plan(input.text ?: "", AgentContext())
+        if (plan.nodes.isNotEmpty()) { _activeTaskChain.value = plan; _cognitiveState.value = CognitiveState.EXECUTING; taskExecutor.executeChain(plan) }
         return IntentResult(response = "Plan: ${plan.nodes.size} steps", taskChain = plan)
     }
 

@@ -1,5 +1,6 @@
 package com.orca.agent.core
 
+import android.graphics.Rect
 import kotlinx.coroutines.flow.StateFlow
 
 enum class CognitiveState {
@@ -37,7 +38,11 @@ data class ScreenState(
     val currentApp: String = "", val visibleText: String = "",
     val visibleUrls: List<String> = emptyList(),
     val clickableElements: List<ClickableElement> = emptyList(),
-    val screenshotBase64: String = "", val timestamp: Long = System.currentTimeMillis()
+    val scrollableElements: List<ClickableElement> = emptyList(),
+    val editableElements: List<ClickableElement> = emptyList(),
+    val permissionRequests: List<String> = emptyList(),
+    val screenshotBase64: String = "", val accessibilityTree: String = "",
+    val timestamp: Long = System.currentTimeMillis()
 ) {
     fun describe(): String = "App: $currentApp"
     fun isEmpty(): Boolean = currentApp.isEmpty()
@@ -49,9 +54,12 @@ data class ScreenState(
 
 data class ClickableElement(
     val text: String, val description: String,
-    val bounds: android.graphics.Rect, val className: String = "",
-    val isEditable: Boolean = false
-)
+    val bounds: Rect, val className: String = "",
+    val isEditable: Boolean = false, val confidence: Float = 1.0f
+) {
+    fun centerX(): Int = bounds.centerX()
+    fun centerY(): Int = bounds.centerY()
+}
 
 data class AgentContext(
     val currentScreen: ScreenState = ScreenState(),
@@ -66,6 +74,8 @@ data class VerificationResult(
 
 sealed class ExecutionResult {
     data class Success(val description: String) : ExecutionResult()
+    data class NeedsRecovery(val error: String, val screenshot: ScreenState) : ExecutionResult()
+    data class NeedsConfirmation(val question: String, val riskLevel: RiskLevel) : ExecutionResult()
     data class Failure(val error: String, val canRecover: Boolean) : ExecutionResult()
 }
 
