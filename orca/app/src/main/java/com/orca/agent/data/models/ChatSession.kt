@@ -1,18 +1,20 @@
-// app/src/main/java/com/orca/agent/data/models/ChatSession.kt - REPLACE WITH REAL CONTENT
 package com.orca.agent.data.models
 
-import androidx.room.*
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.orca.agent.memory.ChatSession
+import com.orca.agent.memory.ChatMessage
+import com.orca.agent.memory.SessionStatus
+import com.orca.agent.memory.Artifact
 import com.orca.agent.core.TaskChain
-import com.orca.agent.memory.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-// Room Entities
 @Entity(tableName = "chat_sessions")
 data class ChatSessionEntity(
     @PrimaryKey val id: String,
     val title: String,
-    val messagesJson: String, // JSON serialized messages
+    val messagesJson: String,
     val taskChainJson: String?,
     val isPaused: Boolean,
     val status: String,
@@ -29,16 +31,40 @@ data class ChatSessionEntity(
         return ChatSession(
             id = id,
             title = title,
-            messages = gson.fromJson(messagesJson, object : TypeToken<List<ChatMessage>>() {}.type),
-            taskChain = taskChainJson?.let { gson.fromJson(it, TaskChain::class.java) },
+            messages = try {
+                gson.fromJson(messagesJson, object : TypeToken<List<ChatMessage>>() {}.type)
+            } catch (e: Exception) {
+                emptyList()
+            },
+            taskChain = try {
+                taskChainJson?.let { gson.fromJson(it, TaskChain::class.java) }
+            } catch (e: Exception) {
+                null
+            },
             isPaused = isPaused,
-            status = SessionStatus.valueOf(status),
-            artifacts = gson.fromJson(artifactsJson, object : TypeToken<List<Artifact>>() {}.type),
-            tags = gson.fromJson(tagsJson, object : TypeToken<List<String>>() {}.type),
+            status = try {
+                SessionStatus.valueOf(status)
+            } catch (e: Exception) {
+                SessionStatus.ACTIVE
+            },
+            artifacts = try {
+                gson.fromJson(artifactsJson, object : TypeToken<List<Artifact>>() {}.type)
+            } catch (e: Exception) {
+                emptyList()
+            },
+            tags = try {
+                gson.fromJson(tagsJson, object : TypeToken<List<String>>() {}.type)
+            } catch (e: Exception) {
+                emptyList()
+            },
             createdAt = createdAt,
             updatedAt = updatedAt,
             parentSessionId = parentSessionId,
-            mergedFrom = gson.fromJson(mergedFromJson, object : TypeToken<List<String>>() {}.type),
+            mergedFrom = try {
+                gson.fromJson(mergedFromJson, object : TypeToken<List<String>>() {}.type)
+            } catch (e: Exception) {
+                emptyList()
+            },
             cognitiveCoreDump = cognitiveCoreDump
         )
     }
@@ -62,32 +88,3 @@ fun ChatSession.toEntity(): ChatSessionEntity {
         cognitiveCoreDump = cognitiveCoreDump
     )
 }
-
-@Entity(tableName = "memories")
-data class MemoryEntity(
-    @PrimaryKey val id: String,
-    val type: String,
-    val content: String,
-    val timestamp: Long,
-    val metadataJson: String
-) {
-    fun toMemoryEntry(): MemoryEntry {
-        val gson = Gson()
-        return MemoryEntry(
-            id = id,
-            type = MemoryType.valueOf(type),
-            content = content,
-            embedding = null,
-            timestamp = timestamp,
-            metadata = gson.fromJson(metadataJson, object : TypeToken<Map<String, String>>() {}.type)
-        )
-    }
-}
-
-@Entity(tableName = "deep_saves")
-data class DeepSaveEntity(
-    @PrimaryKey val sessionId: String,
-    val coreDump: String,
-    val fullContext: ByteArray,
-    val timestamp: Long
-)
