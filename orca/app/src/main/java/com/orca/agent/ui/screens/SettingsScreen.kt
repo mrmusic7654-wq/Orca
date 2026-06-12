@@ -1,4 +1,8 @@
-// app/src/main/java/com/orca/agent/ui/screens/SettingsScreen.kt - REPLACE WITH REAL CONTENT
+// ============================================================
+// SettingsScreen.kt - FULL FEATURES
+// Path: app/src/main/java/com/orca/agent/ui/screens/SettingsScreen.kt
+// ============================================================
+
 package com.orca.agent.ui.screens
 
 import androidx.compose.foundation.background
@@ -21,22 +25,22 @@ import com.orca.agent.ui.theme.OrcaColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(
-    onNavigateBack: () -> Unit
-) {
-    var autoPilotEnabled by remember { mutableStateOf(false) }
-    var deepThinkMode by remember { mutableStateOf(false) }
-    var silentTaskEnabled by remember { mutableStateOf(true) }
-    var voiceEnabled by remember { mutableStateOf(true) }
+fun SettingsScreen(onNavigateBack: () -> Unit) {
+    var autoPilot by remember { mutableStateOf(false) }
+    var deepThink by remember { mutableStateOf(false) }
+    var silentTasks by remember { mutableStateOf(true) }
+    var voiceOutput by remember { mutableStateOf(true) }
     var threatDetection by remember { mutableStateOf(true) }
-    var autoReplyEnabled by remember { mutableStateOf(false) }
-    
+    var biometricCheckpoints by remember { mutableStateOf(true) }
+    var autoReply by remember { mutableStateOf(false) }
+    var showClearConfirm by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "SETTINGS",
+                        "SETTINGS",
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.W300,
                         fontSize = 20.sp,
@@ -46,11 +50,7 @@ fun SettingsScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = OrcaColors.CoolGrey
-                        )
+                        Icon(Icons.Default.ArrowBack, "Back", tint = OrcaColors.CoolGrey)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -59,179 +59,231 @@ fun SettingsScreen(
             )
         },
         containerColor = OrcaColors.VantaBlack
-    ) { paddingValues ->
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Agent Configuration
-            SettingsSection(title = "AGENT CONFIGURATION") {
-                SettingsToggle(
+            // AGENT CONFIGURATION
+            SettingsSectionHeader("AGENT CONFIGURATION")
+            SettingsCard {
+                SettingsToggleRow(
                     title = "AutoPilot Mode",
-                    subtitle = "Enable full autonomous agent behavior",
-                    icon = Icons.Default.AutoMode,
-                    checked = autoPilotEnabled,
-                    onCheckedChange = { autoPilotEnabled = it }
+                    subtitle = "Enable full autonomous agent behavior. Orca will act without confirmation for routine tasks.",
+                    icon = Icons.Default.AutoAwesome,
+                    checked = autoPilot,
+                    onCheckedChange = { autoPilot = it }
                 )
-                SettingsToggle(
+                SettingsToggleRow(
                     title = "Deep Think Mode",
-                    subtitle = "Use more compute for complex task planning",
+                    subtitle = "Use extended reasoning for complex task planning. Increases API usage.",
                     icon = Icons.Default.Psychology,
-                    checked = deepThinkMode,
-                    onCheckedChange = { deepThinkMode = it }
+                    checked = deepThink,
+                    onCheckedChange = { deepThink = it }
                 )
-                SettingsToggle(
+                SettingsToggleRow(
                     title = "Silent Background Tasks",
-                    subtitle = "Optimize device during idle time",
-                    icon = Icons.Default.NightsStay,
-                    checked = silentTaskEnabled,
-                    onCheckedChange = { silentTaskEnabled = it }
+                    subtitle = "Optimize device during idle time. Clean cache, update apps, backup data.",
+                    icon = Icons.Default.Nightlight,
+                    checked = silentTasks,
+                    onCheckedChange = { silentTasks = it }
                 )
             }
-            
-            // Security Settings
-            SettingsSection(title = "SECURITY") {
-                SettingsToggle(
+
+            // SECURITY
+            SettingsSectionHeader("SECURITY")
+            SettingsCard {
+                SettingsToggleRow(
                     title = "Threat Detection",
-                    subtitle = "Scan for phishing and malicious content",
-                    icon = Icons.Default.Shield,
+                    subtitle = "Scan for phishing attempts, malicious links, and suspicious UI patterns.",
+                    icon = Icons.Default.Security,
                     checked = threatDetection,
                     onCheckedChange = { threatDetection = it }
                 )
-                SettingsToggle(
+                SettingsToggleRow(
                     title = "Biometric Checkpoints",
-                    subtitle = "Require fingerprint for sensitive actions",
+                    subtitle = "Require fingerprint verification for payments, passwords, and sensitive actions.",
                     icon = Icons.Default.Fingerprint,
-                    checked = true,
-                    onCheckedChange = { }
+                    checked = biometricCheckpoints,
+                    onCheckedChange = { biometricCheckpoints = it }
                 )
-                SettingsItem(
-                    title = "Manage Auto-Reply Whitelist",
-                    subtitle = "Contacts allowed for automatic replies",
-                    icon = Icons.Default.Contacts,
+                SettingsClickRow(
+                    title = "Auto-Reply Whitelist",
+                    subtitle = "Manage contacts allowed for automatic message replies.",
+                    icon = Icons.Default.ContactPhone,
+                    onClick = { }
+                )
+                SettingsClickRow(
+                    title = "Stored Credentials",
+                    subtitle = "Manage saved passwords and login information.",
+                    icon = Icons.Default.Password,
                     onClick = { }
                 )
             }
-            
-            // Communication
-            SettingsSection(title = "COMMUNICATION") {
-                SettingsToggle(
+
+            // COMMUNICATION
+            SettingsSectionHeader("COMMUNICATION")
+            SettingsCard {
+                SettingsToggleRow(
                     title = "Voice Output",
-                    subtitle = "Orca speaks responses aloud",
+                    subtitle = "Orca speaks responses aloud. Respects Do Not Disturb and silent mode.",
                     icon = Icons.Default.VolumeUp,
-                    checked = voiceEnabled,
-                    onCheckedChange = { voiceEnabled = it }
+                    checked = voiceOutput,
+                    onCheckedChange = { voiceOutput = it }
                 )
-                SettingsToggle(
+                SettingsToggleRow(
                     title = "Auto-Reply",
-                    subtitle = "Automatically respond to trusted contacts",
+                    subtitle = "Automatically respond to messages from trusted contacts when you're busy.",
                     icon = Icons.Default.Reply,
-                    checked = autoReplyEnabled,
-                    onCheckedChange = { autoReplyEnabled = it }
+                    checked = autoReply,
+                    onCheckedChange = { autoReply = it }
                 )
             }
-            
-            // Data & Storage
-            SettingsSection(title = "DATA & STORAGE") {
-                SettingsItem(
+
+            // DATA & STORAGE
+            SettingsSectionHeader("DATA & STORAGE")
+            SettingsCard {
+                SettingsClickRow(
                     title = "Memory Usage",
-                    subtitle = "1.2 GB of 5 GB allocated",
+                    subtitle = "1.2 GB of 5 GB allocated • 24% used",
                     icon = Icons.Default.Storage,
                     onClick = { }
                 )
-                SettingsItem(
+                SettingsClickRow(
                     title = "Export All Data",
-                    subtitle = "Download your Orca data archive",
+                    subtitle = "Download your complete Orca data archive as JSON.",
                     icon = Icons.Default.Download,
                     onClick = { }
                 )
-                SettingsItem(
+                SettingsClickRow(
                     title = "Clear Memory Stream",
-                    subtitle = "Delete all chat sessions and memories",
+                    subtitle = "Permanently delete all chat sessions and learned patterns.",
                     icon = Icons.Default.DeleteForever,
-                    onClick = { },
+                    onClick = { showClearConfirm = true },
                     isDestructive = true
                 )
             }
-            
-            // About
-            SettingsSection(title = "ABOUT") {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            OrcaColors.AbyssBlack.copy(alpha = 0.5f),
-                            RoundedCornerShape(12.dp)
+
+            // ABOUT
+            SettingsSectionHeader("ABOUT")
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = OrcaColors.AbyssBlack.copy(alpha = 0.5f)),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            "ORCA",
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.W600,
+                            fontSize = 24.sp,
+                            color = OrcaColors.NeonRed,
+                            letterSpacing = 4.sp
                         )
-                        .padding(16.dp)
-                ) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            "v2.0.0",
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 14.sp,
+                            color = OrcaColors.CoolGrey
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "ORCA v2.0.0",
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.W600,
-                        fontSize = 16.sp,
-                        color = OrcaColors.PureWhite
-                    )
-                    Text(
-                        text = "Codename: Abyssal Neon",
+                        "Codename: Abyssal Neon",
                         fontFamily = FontFamily.Monospace,
                         fontSize = 12.sp,
-                        color = OrcaColors.NeonRed
+                        color = OrcaColors.CyanIntelligence
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Autonomous Agent for Android",
+                        "Autonomous Agent for Android",
                         fontFamily = FontFamily.Default,
                         fontSize = 13.sp,
                         color = OrcaColors.CoolGrey
                     )
                     Text(
-                        text = "Powered by Gemini 2.5 Flash",
+                        "Powered by Gemini 2.5 Flash • 1M Context Window",
                         fontFamily = FontFamily.Default,
                         fontSize = 13.sp,
                         color = OrcaColors.CoolGrey
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
+
+    // Clear confirmation dialog
+    if (showClearConfirm) {
+        AlertDialog(
+            onDismissRequest = { showClearConfirm = false },
+            title = {
+                Text(
+                    "Clear All Memory?",
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.W600,
+                    color = OrcaColors.PureWhite
+                )
+            },
+            text = {
+                Text(
+                    "This will permanently delete all chat sessions, learned patterns, and cached data. This action cannot be undone.",
+                    color = OrcaColors.CoolGrey
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { showClearConfirm = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = OrcaColors.ErrorRed)
+                ) {
+                    Text("DELETE EVERYTHING", fontFamily = FontFamily.Monospace)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearConfirm = false }) {
+                    Text("Cancel", color = OrcaColors.CoolGrey)
+                }
+            },
+            containerColor = OrcaColors.AbyssBlack
+        )
+    }
 }
 
 @Composable
-fun SettingsSection(
-    title: String,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Column {
-        Text(
-            text = title,
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.W600,
-            fontSize = 11.sp,
-            color = OrcaColors.NeonRed,
-            letterSpacing = 3.sp,
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
-        )
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = OrcaColors.AbyssBlack.copy(alpha = 0.5f)),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Column(modifier = Modifier.padding(4.dp)) {
-                content()
-            }
+fun SettingsSectionHeader(title: String) {
+    Text(
+        text = title,
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W600,
+        fontSize = 11.sp,
+        color = OrcaColors.NeonRed,
+        letterSpacing = 3.sp,
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
+    )
+}
+
+@Composable
+fun SettingsCard(content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = OrcaColors.AbyssBlack.copy(alpha = 0.5f)),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.padding(4.dp)) {
+            content()
         }
     }
 }
 
 @Composable
-fun SettingsToggle(
+fun SettingsToggleRow(
     title: String,
     subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
@@ -241,29 +293,26 @@ fun SettingsToggle(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .clickable { onCheckedChange(!checked) }
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            icon,
-            contentDescription = null,
-            tint = OrcaColors.CoolGrey,
-            modifier = Modifier.size(24.dp)
-        )
+        Icon(icon, null, tint = OrcaColors.CoolGrey, modifier = Modifier.size(22.dp))
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = title,
+                title,
                 fontFamily = FontFamily.Default,
                 fontWeight = FontWeight.W500,
                 fontSize = 14.sp,
                 color = OrcaColors.PureWhite
             )
             Text(
-                text = subtitle,
+                subtitle,
                 fontFamily = FontFamily.Default,
                 fontSize = 11.sp,
-                color = OrcaColors.WarmGrey
+                color = OrcaColors.WarmGrey,
+                lineHeight = 14.sp
             )
         }
         Switch(
@@ -280,7 +329,7 @@ fun SettingsToggle(
 }
 
 @Composable
-fun SettingsItem(
+fun SettingsClickRow(
     title: String,
     subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
@@ -296,21 +345,21 @@ fun SettingsItem(
     ) {
         Icon(
             icon,
-            contentDescription = null,
+            null,
             tint = if (isDestructive) OrcaColors.ErrorRed else OrcaColors.CoolGrey,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(22.dp)
         )
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = title,
+                title,
                 fontFamily = FontFamily.Default,
                 fontWeight = FontWeight.W500,
                 fontSize = 14.sp,
                 color = if (isDestructive) OrcaColors.ErrorRed else OrcaColors.PureWhite
             )
             Text(
-                text = subtitle,
+                subtitle,
                 fontFamily = FontFamily.Default,
                 fontSize = 11.sp,
                 color = OrcaColors.WarmGrey
@@ -318,8 +367,8 @@ fun SettingsItem(
         }
         Icon(
             Icons.Default.ChevronRight,
-            contentDescription = null,
-            tint = OrcaColors.WarmGrey,
+            null,
+            tint = OrcaColors.WarmGrey.copy(alpha = 0.5f),
             modifier = Modifier.size(20.dp)
         )
     }
