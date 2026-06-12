@@ -1,8 +1,6 @@
 package com.orca.agent.di
-
 import android.content.Context
-import com.orca.agent.core.OrcaCore
-import com.orca.agent.core.TaskExecutor
+import com.orca.agent.core.*
 import com.orca.agent.data.database.OrcaDatabase
 import com.orca.agent.data.network.GeminiApi
 import com.orca.agent.execution.*
@@ -17,204 +15,34 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
-
-@Module
-@InstallIn(SingletonComponent::class)
+@Module @InstallIn(SingletonComponent::class)
 object AppModule {
-
-    @Provides
-    @Singleton
-    fun provideContext(@ApplicationContext context: Context): Context = context
-
-    @Provides
-    @Singleton
-    fun provideOrcaDatabase(@ApplicationContext context: Context): OrcaDatabase {
-        return OrcaDatabase.getInstance(context)
-    }
-
-    @Provides
-    @Singleton
-    fun provideGeminiApi(): GeminiApi = GeminiApi()
-
-    @Provides
-    @Singleton
-    fun provideCoroutineScope(): CoroutineScope {
-        return CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    }
-
-    @Provides
-    @Singleton
-    fun provideIntentPredictor(memoryCortex: MemoryCortex): IntentPredictor {
-        return IntentPredictor(memoryCortex)
-    }
-
-    @Provides
-    @Singleton
-    fun provideThreatDetector(): ThreatDetector = ThreatDetector()
-
-    @Provides
-    @Singleton
-    fun provideProceduralGraph(): ProceduralGraph = ProceduralGraph()
-
-    @Provides
-    @Singleton
-    fun provideSkillForge(proceduralGraph: ProceduralGraph): SkillForge {
-        return SkillForge(proceduralGraph)
-    }
-
-    @Provides
-    @Singleton
-    fun provideDeepSave(geminiApi: GeminiApi, database: OrcaDatabase): DeepSave {
-        return DeepSave(geminiApi, database)
-    }
-
-    @Provides
-    @Singleton
-    fun provideSemanticLake(geminiApi: GeminiApi): SemanticLake {
-        return SemanticLake(geminiApi)
-    }
-
-    @Provides
-    @Singleton
-    fun provideEpisodicJournal(database: OrcaDatabase): EpisodicJournal {
-        return EpisodicJournal(database)
-    }
-
-    @Provides
-    @Singleton
-    fun provideMemoryStream(database: OrcaDatabase, deepSave: DeepSave): MemoryStream {
-        return MemoryStream(database, deepSave)
-    }
-
-    @Provides
-    @Singleton
-    fun provideMemoryCortex(
-        memoryStream: MemoryStream,
-        semanticLake: SemanticLake,
-        proceduralGraph: ProceduralGraph,
-        episodicJournal: EpisodicJournal,
-        database: OrcaDatabase
-    ): MemoryCortex {
-        return MemoryCortex(memoryStream, semanticLake, proceduralGraph, episodicJournal, database)
-    }
-
-    @Provides
-    @Singleton
-    fun provideConsciousMind(geminiApi: GeminiApi, memoryCortex: MemoryCortex): ConsciousMind {
-        return ConsciousMind(geminiApi, memoryCortex)
-    }
-
-    @Provides
-    @Singleton
-    fun provideSubconsciousEngine(
-        intentPredictor: IntentPredictor,
-        threatDetector: ThreatDetector,
-        memoryCortex: MemoryCortex
-    ): SubconsciousEngine {
-        return SubconsciousEngine(intentPredictor, threatDetector, memoryCortex)
-    }
-
-    @Provides
-    @Singleton
-    fun provideTouchController(): TouchController = TouchController()
-
-    @Provides
-    @Singleton
-    fun provideGestureEngine(touchController: TouchController): GestureEngine {
-        return GestureEngine(touchController)
-    }
-
-    @Provides
-    @Singleton
-    fun provideScreenParser(geminiApi: GeminiApi): ScreenParser {
-        return ScreenParser(geminiApi)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAppNavigator(
-        @ApplicationContext context: Context,
-        gestureEngine: GestureEngine,
-        screenParser: ScreenParser
-    ): AppNavigator {
-        return AppNavigator(context, gestureEngine, screenParser)
-    }
-
-    @Provides
-    @Singleton
-    fun provideTaskExecutor(
-        gestureEngine: GestureEngine,
-        appNavigator: AppNavigator,
-        screenParser: ScreenParser,
-        consciousMind: ConsciousMind,
-        memoryCortex: MemoryCortex
-    ): TaskExecutor {
-        return TaskExecutor(gestureEngine, appNavigator, screenParser, consciousMind, memoryCortex)
-    }
-
-    @Provides
-    @Singleton
-    fun provideSilentTask(
-        @ApplicationContext context: Context,
-        orcaCore: OrcaCore
-    ): SilentTask {
-        return SilentTask(context, orcaCore)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAutoReply(orcaCore: OrcaCore, intentPredictor: IntentPredictor): AutoReply {
-        return AutoReply(orcaCore, intentPredictor)
-    }
-
-    @Provides
-    @Singleton
-    fun provideCrossAppWorkflow(
-        appNavigator: AppNavigator,
-        gestureEngine: GestureEngine,
-        orcaCore: OrcaCore
-    ): CrossAppWorkflow {
-        return CrossAppWorkflow(appNavigator, gestureEngine, orcaCore)
-    }
-
-    @Provides
-    @Singleton
-    fun provideDigitalTwin(memoryCortex: MemoryCortex): DigitalTwin {
-        return DigitalTwin(memoryCortex)
-    }
-
-    @Provides
-    @Singleton
-    fun provideSecurityManager(@ApplicationContext context: Context): SecurityManager {
-        return SecurityManager(context)
-    }
-
-    @Provides
-    @Singleton
-    fun provideOrcaVoiceEngine(@ApplicationContext context: Context): OrcaVoiceEngine {
-        return OrcaVoiceEngine(context)
-    }
-
-    @Provides
-    @Singleton
-    fun providePreferencesDataStore(@ApplicationContext context: Context): PreferencesDataStore {
-        return PreferencesDataStore(context)
-    }
-
-    @Provides
-    @Singleton
-    fun provideOrcaCore(
-        consciousMind: ConsciousMind,
-        subconsciousEngine: SubconsciousEngine,
-        memoryCortex: MemoryCortex,
-        taskExecutor: TaskExecutor,
-        digitalTwin: DigitalTwin,
-        database: OrcaDatabase
-    ): OrcaCore {
-        return OrcaCore(consciousMind, subconsciousEngine, memoryCortex, taskExecutor, digitalTwin, database)
-    }
+    @Provides @Singleton fun provideContext(@ApplicationContext c: Context): Context = c
+    @Provides @Singleton fun provideDb(@ApplicationContext c: Context) = OrcaDatabase.getInstance(c)
+    @Provides @Singleton fun provideGemini() = GeminiApi()
+    @Provides @Singleton fun provideThreatDetector() = ThreatDetector()
+    @Provides @Singleton fun provideProceduralGraph() = ProceduralGraph()
+    @Provides @Singleton fun provideSkillForge(pg: ProceduralGraph) = SkillForge(pg)
+    @Provides @Singleton fun provideDeepSave(api: GeminiApi, db: OrcaDatabase) = DeepSave(api, db)
+    @Provides @Singleton fun provideSemanticLake(api: GeminiApi) = SemanticLake(api)
+    @Provides @Singleton fun provideEpisodicJournal(db: OrcaDatabase) = EpisodicJournal(db)
+    @Provides @Singleton fun provideMemoryStream(db: OrcaDatabase, ds: DeepSave) = MemoryStream(db, ds)
+    @Provides @Singleton fun provideMemoryCortex(ms: MemoryStream, sl: SemanticLake, pg: ProceduralGraph, ej: EpisodicJournal, db: OrcaDatabase) = MemoryCortex(ms, sl, pg, ej, db)
+    @Provides @Singleton fun provideIntentPredictor(mc: MemoryCortex) = IntentPredictor(mc)
+    @Provides @Singleton fun provideConsciousMind(api: GeminiApi, mc: MemoryCortex) = ConsciousMind(api, mc)
+    @Provides @Singleton fun provideSubconscious(ip: IntentPredictor, td: ThreatDetector, mc: MemoryCortex) = SubconsciousEngine(ip, td, mc)
+    @Provides @Singleton fun provideTouchController() = TouchController()
+    @Provides @Singleton fun provideGestureEngine(tc: TouchController) = GestureEngine(tc)
+    @Provides @Singleton fun provideScreenParser(api: GeminiApi) = ScreenParser(api)
+    @Provides @Singleton fun provideAppNavigator(@ApplicationContext c: Context, ge: GestureEngine, sp: ScreenParser) = AppNavigator(c, ge, sp)
+    @Provides @Singleton fun provideTaskExecutor(ge: GestureEngine, an: AppNavigator, sp: ScreenParser, cm: ConsciousMind, mc: MemoryCortex) = TaskExecutor(ge, an, sp, cm, mc)
+    @Provides @Singleton fun provideSilentTask(@ApplicationContext c: Context, oc: OrcaCore) = SilentTask(c, oc)
+    @Provides @Singleton fun provideAutoReply(oc: OrcaCore, ip: IntentPredictor) = AutoReply(oc, ip)
+    @Provides @Singleton fun provideCrossAppWorkflow(an: AppNavigator, ge: GestureEngine, oc: OrcaCore) = CrossAppWorkflow(an, ge, oc)
+    @Provides @Singleton fun provideDigitalTwin(mc: MemoryCortex) = DigitalTwin(mc)
+    @Provides @Singleton fun provideSecurity(@ApplicationContext c: Context) = SecurityManager(c)
+    @Provides @Singleton fun provideVoice(@ApplicationContext c: Context) = OrcaVoiceEngine(c)
+    @Provides @Singleton fun providePrefs(@ApplicationContext c: Context) = PreferencesDataStore(c)
+    @Provides @Singleton fun provideOrcaCore(cm: ConsciousMind, se: SubconsciousEngine, mc: MemoryCortex, te: TaskExecutor, dt: DigitalTwin, db: OrcaDatabase) = OrcaCore(cm, se, mc, te, dt, db)
 }

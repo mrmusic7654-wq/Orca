@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 enum class CognitiveState {
     IDLE, OBSERVING, PLANNING, EXECUTING, VERIFYING,
-    RECOVERING, AWAITING_CONFIRMATION, LEARNING,
+    RECOVERING, AWAITING_INPUT, AWAITING_CONFIRMATION, LEARNING,
     AUTONOMOUS, ERROR, SHUTDOWN
 }
 
@@ -12,12 +12,12 @@ enum class InputType { TEXT, IMAGE, VOICE, SEE_AND_ACT }
 enum class RiskLevel { LOW, MEDIUM, HIGH, CRITICAL }
 
 data class UserInput(
-    val text: String?,
-    val imageBase64: String? = null,
-    val voiceInput: ByteArray? = null,
-    val type: InputType,
+    val text: String?, val imageBase64: String? = null,
+    val voiceInput: ByteArray? = null, val type: InputType,
     val riskLevel: RiskLevel = RiskLevel.LOW
-)
+) {
+    fun summarize(): String = text?.take(100) ?: "Input"
+}
 
 sealed class AgentAction {
     data class Tap(val x: Int, val y: Int, val description: String = "") : AgentAction()
@@ -34,11 +34,10 @@ sealed class AgentAction {
 }
 
 data class ScreenState(
-    val currentApp: String = "",
-    val visibleText: String = "",
+    val currentApp: String = "", val visibleText: String = "",
+    val visibleUrls: List<String> = emptyList(),
     val clickableElements: List<ClickableElement> = emptyList(),
-    val screenshotBase64: String = "",
-    val timestamp: Long = System.currentTimeMillis()
+    val screenshotBase64: String = "", val timestamp: Long = System.currentTimeMillis()
 ) {
     fun describe(): String = "App: $currentApp"
     fun isEmpty(): Boolean = currentApp.isEmpty()
@@ -49,10 +48,8 @@ data class ScreenState(
 }
 
 data class ClickableElement(
-    val text: String,
-    val description: String,
-    val bounds: android.graphics.Rect,
-    val className: String,
+    val text: String, val description: String,
+    val bounds: android.graphics.Rect, val className: String = "",
     val isEditable: Boolean = false
 )
 
@@ -63,16 +60,12 @@ data class AgentContext(
 )
 
 data class VerificationResult(
-    val matches: Boolean,
-    val confidence: Float,
-    val description: String,
-    val suggestedCorrection: AgentAction? = null
+    val matches: Boolean, val confidence: Float,
+    val description: String, val suggestedCorrection: AgentAction? = null
 )
 
 sealed class ExecutionResult {
     data class Success(val description: String) : ExecutionResult()
-    data class NeedsRecovery(val error: String, val screenshot: ScreenState) : ExecutionResult()
-    data class NeedsConfirmation(val question: String, val riskLevel: RiskLevel) : ExecutionResult()
     data class Failure(val error: String, val canRecover: Boolean) : ExecutionResult()
 }
 
@@ -81,12 +74,11 @@ interface CognitiveEngine {
     suspend fun plan(task: String, context: AgentContext): TaskChain
     suspend fun verify(expected: String, actual: ScreenState): VerificationResult
     suspend fun recover(error: String, context: AgentContext): AgentAction?
+    suspend fun reflect(experience: TaskExperience): List<String>
 }
 
 data class TaskExperience(
-    val task: String,
-    val plan: TaskChain,
-    val result: ExecutionResult,
-    val screenshots: List<ScreenState> = emptyList(),
+    val task: String, val plan: TaskChain,
+    val result: ExecutionResult, val screenshots: List<ScreenState> = emptyList(),
     val timestamp: Long = System.currentTimeMillis()
 )
