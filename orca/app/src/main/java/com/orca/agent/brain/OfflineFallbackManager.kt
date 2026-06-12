@@ -12,7 +12,7 @@ class OfflineFallbackManager @Inject constructor(
     private val memoryCortex: MemoryCortex
 ) {
     private val cachedWorkflows = mutableMapOf<String, List<TaskNode>>()
-    private val cachedRecoveryActions = mutableMapOf<String, List<AgentAction>>()
+    private val cachedRecoveryActions = mutableMapOf<String, MutableList<AgentAction>>()
     private val _isOfflineMode = MutableStateFlow(false)
     val isOfflineMode: StateFlow<Boolean> = _isOfflineMode.asStateFlow()
 
@@ -35,7 +35,8 @@ class OfflineFallbackManager @Inject constructor(
     }
 
     fun cacheRecoveryAction(errorPattern: String, action: AgentAction) {
-        cachedRecoveryActions.getOrPut(errorPattern) { mutableListOf() }.apply { add(0, action) }
+        val list = cachedRecoveryActions.getOrPut(errorPattern) { mutableListOf() }
+        list.add(0, action)
     }
 
     fun enableOfflineMode() { _isOfflineMode.value = true }

@@ -8,11 +8,13 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SecurityManager @Inject constructor(private val context: Context) {
+class SecurityManager @Inject constructor(
+    private val context: Context
+) {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState
 
-    private val sensitiveActions = listOf("payment","password","credit card","banking","transfer","checkout")
+    private val sensitiveActions = listOf("payment","password","credit card","banking","transfer","checkout","confirm purchase","sign in","login","credential")
 
     fun isSensitiveAction(action: String): Boolean = sensitiveActions.any { action.contains(it, true) }
 

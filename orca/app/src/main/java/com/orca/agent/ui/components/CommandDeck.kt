@@ -27,7 +27,7 @@ fun CommandDeck(onTextSubmit: (String) -> Unit, onVoiceClick: () -> Unit, onCame
     Card(modifier = modifier.fillMaxWidth().padding(8.dp), colors = CardDefaults.cardColors(containerColor = OrcaColors.AbyssBlack.copy(alpha = 0.9f)), shape = RoundedCornerShape(20.dp)) {
         Column(modifier = Modifier.padding(8.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onCameraClick, modifier = Modifier.size(40.dp)) { Icon(Icons.Default.CameraAlt, "Camera", tint = OrcaColors.CoolGrey, modifier = Modifier.size(22.dp)) }
+                IconButton(onClick = onCameraClick, modifier = Modifier.size(40.dp)) { Icon(Icons.Default.Star, "Camera", tint = OrcaColors.CoolGrey, modifier = Modifier.size(22.dp)) }
                 OutlinedTextField(value = textInput, onValueChange = { textInput = it }, modifier = Modifier.weight(1f).height(48.dp), placeholder = { Text("Message Orca...", fontFamily = FontFamily.Monospace, fontSize = 13.sp, color = OrcaColors.WarmGrey) }, colors = OutlinedTextFieldDefaults.colors(focusedTextColor = OrcaColors.PureWhite, focusedBorderColor = OrcaColors.NeonRed, unfocusedBorderColor = Color.Transparent, cursorColor = OrcaColors.NeonRed, focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent), shape = RoundedCornerShape(12.dp), singleLine = true)
                 IconButton(onClick = { if (textInput.isNotBlank()) { onTextSubmit(textInput); textInput = "" } }, modifier = Modifier.size(40.dp), enabled = textInput.isNotBlank()) { Icon(Icons.Default.Send, "Send", tint = if (textInput.isNotBlank()) OrcaColors.NeonRed else OrcaColors.WarmGrey, modifier = Modifier.size(22.dp)) }
             }
