@@ -26,9 +26,8 @@ class SecurityManager @Inject constructor(
 
     fun canAuthenticate(): Boolean {
         return try {
-            val bm = BiometricManager.from(context)
-            bm.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == 
-                BiometricManager.BIOMETRIC_SUCCESS
+            val bm: BiometricManager = context.getSystemService(Context.BIOMETRIC_SERVICE) as BiometricManager
+            bm.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
         } catch (e: Exception) {
             false
         }
@@ -36,9 +35,8 @@ class SecurityManager @Inject constructor(
 
     fun isBiometricAvailable(): Boolean {
         return try {
-            val bm = BiometricManager.from(context)
-            bm.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == 
-                BiometricManager.BIOMETRIC_SUCCESS
+            val bm: BiometricManager = context.getSystemService(Context.BIOMETRIC_SERVICE) as BiometricManager
+            bm.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
         } catch (e: Exception) {
             false
         }
