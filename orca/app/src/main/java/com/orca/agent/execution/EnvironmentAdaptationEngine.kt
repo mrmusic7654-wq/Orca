@@ -25,7 +25,7 @@ class EnvironmentAdaptationEngine @Inject constructor(
             screenWidth = metrics.widthPixels,
             screenHeight = metrics.heightPixels,
             deviceLanguage = config.locales[0]?.language ?: "en",
-            isRightToLeft = config.layoutDirection == Configuration.LAYOUT_DIRECTION_RTL,
+            isRightToLeft = config.layoutDirection == android.view.View.LAYOUT_DIRECTION_RTL,
             hasAccessibilityFont = config.fontScale > 1.3f
         )
     }

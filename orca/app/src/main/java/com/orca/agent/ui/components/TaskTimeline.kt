@@ -33,7 +33,7 @@ fun TaskTimeline(nodes: List<TaskNode>, currentNodeId: String?, modifier: Modifi
 @Composable
 fun TimelineNodeRow(node: TaskNode, isActive: Boolean, isLast: Boolean, onClick: () -> Unit) {
     val statusColor = when (node.status) { NodeStatus.VERIFIED -> OrcaColors.SuccessGreen; NodeStatus.IN_PROGRESS -> OrcaColors.CyanIntelligence; NodeStatus.FAILED -> OrcaColors.ErrorRed; NodeStatus.NEEDS_RECOVERY -> OrcaColors.WarningOrange; else -> OrcaColors.WarmGrey }
-    val statusIcon = when (node.status) { NodeStatus.VERIFIED -> Icons.Default.CheckCircle; NodeStatus.IN_PROGRESS -> Icons.Default.PlayArrow; NodeStatus.FAILED -> Icons.Default.Close; NodeStatus.NEEDS_RECOVERY -> Icons.Default.Warning; else -> Icons.Default.RadioButtonChecked }
+    val statusIcon = when (node.status) { NodeStatus.VERIFIED -> Icons.Default.CheckCircle; NodeStatus.IN_PROGRESS -> Icons.Default.PlayArrow; NodeStatus.FAILED -> Icons.Default.Close; NodeStatus.NEEDS_RECOVERY -> Icons.Default.Warning; else -> Icons.Default.Circle }
     Row(modifier = Modifier.fillMaxWidth().height(if (isLast) 60.dp else 80.dp).clickable(onClick = onClick).padding(horizontal = 8.dp), verticalAlignment = Alignment.Top) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(32.dp)) {
             Box(modifier = Modifier.size(if (isActive) 16.dp else 12.dp).clip(CircleShape).background(if (isActive) statusColor else statusColor.copy(alpha = 0.6f)))

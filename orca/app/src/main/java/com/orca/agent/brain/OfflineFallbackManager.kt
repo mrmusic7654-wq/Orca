@@ -35,7 +35,7 @@ class OfflineFallbackManager @Inject constructor(
     }
 
     fun cacheRecoveryAction(errorPattern: String, action: AgentAction) {
-        cachedRecoveryActions.getOrPut(errorPattern) { mutableListOf() }.add(0, action)
+        cachedRecoveryActions.getOrPut(errorPattern) { mutableListOf() }.apply { add(0, action) }
     }
 
     fun enableOfflineMode() { _isOfflineMode.value = true }

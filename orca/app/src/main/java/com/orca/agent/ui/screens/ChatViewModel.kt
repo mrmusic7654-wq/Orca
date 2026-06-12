@@ -13,7 +13,7 @@ class ChatViewModel : ViewModel() {
     private val orcaCore: OrcaCore = OrcaCore.getInstance()
 
     val activeSession: StateFlow<ChatSession?> = memoryStream.activeSession
-    val thoughtStream: StateFlow<List<String>> = orcaCore.thoughtStream.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val thoughtStream: StateFlow<String> = orcaCore.thoughtStream.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
     private val _isThinking = MutableStateFlow(false)
     val isThinking: StateFlow<Boolean> = _isThinking.asStateFlow()
 

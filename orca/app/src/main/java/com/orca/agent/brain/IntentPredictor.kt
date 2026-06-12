@@ -1,6 +1,7 @@
 package com.orca.agent.brain
 import android.app.Notification
 import com.orca.agent.core.ScreenState
+import com.orca.agent.brain.PredictedIntent
 import com.orca.agent.memory.MemoryCortex
 import javax.inject.Inject
 import javax.inject.Singleton

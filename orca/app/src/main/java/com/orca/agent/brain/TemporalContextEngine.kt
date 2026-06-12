@@ -43,5 +43,5 @@ class TemporalContextEngine @Inject constructor(
     }
 }
 
-private val TemporalContext.isWeekend: Boolean get() = dayOfWeek == "WEEKEND"
-private val TemporalContext.isVacation: Boolean get() = isVacation
+internal val TemporalContext.isWeekend: Boolean get() = dayOfWeek == "WEEKEND"
+internal val TemporalContext.isVacation: Boolean get() = isVacation

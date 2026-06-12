@@ -13,7 +13,7 @@ class MainOrbViewModel(
 ) : ViewModel() {
 
     val cognitiveState: StateFlow<CognitiveState> = orcaCore.cognitiveState
-    val thoughtStream: StateFlow<List<String>> = orcaCore.thoughtStream.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val thoughtStream: StateFlow<String> = orcaCore.thoughtStream.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
     val thoughtStreamFlow: SharedFlow<String> = orcaCore.thoughtStream
     private val _autoPilotEnabled = MutableStateFlow(false)
     val autoPilotEnabled: StateFlow<Boolean> = _autoPilotEnabled.asStateFlow()

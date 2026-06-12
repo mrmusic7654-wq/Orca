@@ -8,6 +8,7 @@ import android.view.accessibility.AccessibilityEvent
 import com.orca.agent.core.AgentAction
 import com.orca.agent.core.ScreenState
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.StateFlow
 class AccessibilityBridge : AccessibilityService() {
     companion object {
