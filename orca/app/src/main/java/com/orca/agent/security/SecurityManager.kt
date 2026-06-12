@@ -14,13 +14,17 @@ class SecurityManager @Inject constructor(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState
 
-    private val sensitiveActions = listOf("payment","password","credit card","banking","transfer","checkout","confirm purchase","sign in","login","credential")
+    private val sensitiveActions = listOf("payment","password","credit card","banking","transfer","checkout")
 
     fun isSensitiveAction(action: String): Boolean = sensitiveActions.any { action.contains(it, true) }
 
     fun canAuthenticate(): Boolean {
-        val bm = BiometricManager.from(context)
-        return bm.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
+        return try {
+            val bm = BiometricManager.from(context)
+            bm.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 
@@ -30,5 +34,4 @@ sealed class AuthState {
     object Authenticated : AuthState()
     data class Failed(val error: String) : AuthState()
     data class Error(val message: String) : AuthState()
-    data class RequiresFallback(val reason: String) : AuthState()
 }
